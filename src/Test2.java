@@ -11,8 +11,23 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.imageio.stream.FileImageInputStream;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.rosuda.JRI.Rengine;
+import org.tensorflow.TensorFlow;
+
+import deepDriver.dl.aml.ann.ArtifactNeuroNetwork;
+import deepDriver.dl.aml.ann.InputParameters;
+import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
 public class Test2 {
 	
 	public final static int PORT = 13;
@@ -154,11 +169,142 @@ public class Test2 {
 //			}
 		
 
-			java.io.File f = new java.io.File("dataFile.txt");
-			GZipRunnable gZipRun = new GZipRunnable(f);
-			gZipRun.run();
+//			java.io.File f = new java.io.File("dataFile.txt");
+//			GZipRunnable gZipRun = new GZipRunnable(f);
+//			gZipRun.run();
+			
+			
+//			Thread thr = Thread.currentThread();
+//	        System.out.println("目前執行緒名稱:"+thr.getName());
+//	        thr.setName("DEMO");
+//	        System.out.println("更改後的名稱:"+thr.getName());
+		
+//			Runnable runnbale = new Runnable() {
+//			    public void run() {
+//			    	System.out.println("run me!");
+//			    }
+//			};			
+//			runnbale.run(); 
 
+//			try{
+//				threadTest(5);			
+//			}catch (Exception ex) {
+//			
+//			}
+		
+//			LogicsticsActivationFunction tanhAf = new LogicsticsActivationFunction();			
+//			System.out.println(tanhAf.activate(-1199999990));
+//			System.out.println(tanhAf.deActivate(0));
+			
+//			ArtifactNeuroNetwork ann = new ArtifactNeuroNetwork();
+//			InputParameters parameters = new InputParameters();		
+//			double [][] inputs = new double[2000][2];
+//			parameters.setInput(inputs);
+//			double [] y = new double[inputs.length];
+//			parameters.setResult(y);
+//			parameters.setLayerNum(3);			
+//			ann.trainModel(parameters);
+		
+		
+
+//			int N = 3;
+//			double[] dI = new double[N];
+//			double[][] a = new double[N][N];
+//			int[] q = new int[]{0,2,2,1,2,0,0,1,2,0};
+//			
+//			dI[0] = 0.5;
+//			dI[1] = 0.2;
+//			dI[2] = 0.3;
+//			
+//			a[0][0] = 0.1;
+//			a[0][1] = 0.3;
+//			a[0][2] = 0.6;
+//			
+//			a[1][0] = 0.8;
+//			a[1][1] = 0.1;
+//			a[1][2] = 0.1;
+//			
+//			a[2][0] = 0.3;
+//			a[2][1] = 0.3;
+//			a[2][2] = 0.4;
+//			
+//			double p = probability(dI, a, q, q.length);
+//			System.out.println("p: " + p);
+		
+//			System.out.println("I'm using TensorFlow version: " +  TensorFlow.version());
+		
+//			System.out.println("Hello");
+//			HSSFWorkbook wb;
+//			try{
+//				POIFSFileSystem fs= new POIFSFileSystem(new FileInputStream("Book1.xls"));
+//				wb = new HSSFWorkbook(fs);
+//				
+//				HSSFSheet sheet = wb.getSheetAt(0);
+//				HSSFRow row = sheet.getRow(0);
+//				HSSFCell cell = row.getCell((short) 0);
+////				String msg = cell.getStringCellValue();
+//				String msg= cell.toString();
+//				System.out.println("Hello " + msg);
+				
+//			}catch (IOException ex) {
+//				
+//			}
+		
+		
+			Rengine re=new Rengine (new String [] {"--vanilla"}, false, null);
+	        if (!re.waitForR())
+	        {
+	            System.out.println ("Cannot load R");
+	            return;
+	        }	       
+	        // 計算3*5並印出結果
+	        System.out.println (re.eval ("x<-3*5").asDouble ());	       
+	        // 結束
+	        re.end();
 	}
+	
+	
+	
+	public static double probability(double[] dI, double[][] a, int[] q, int T)
+	{
+		
+	    double p = dI[q[0]];
+	    for (int i=1; i<T; ++i){
+	        p *= a[q[i-1]][q[i]];
+	    }
+	    return p;
+	}
+	
+	public static void threadTest(int count) throws Exception {
+	    ExecutorService service = Executors.newFixedThreadPool(5);
+	    for (int i = 0; i < count; i++) {
+	      Process process = new Process(i);
+	      Future<?> result = service.submit(process);
+	      try {
+	        System.out.println(result.get());
+	      }
+	      catch (Exception e) {
+	        e.printStackTrace();
+	      }
+	    }
+	    service.shutdown();
+	}
+	
+	
+	private static class Process implements Runnable {
+	    int id;
+	    
+	    public Process(int id) {
+	      super();
+	      this.id = id;
+	    }
+	 
+	    public void run() {
+	      System.out.println("Process[" + id + "] running!");
+//	      String a = null;
+//	      System.out.println("a is empty?" + (a.equals("")));
+	    }
+	 }
 	
 	public static String getTestString(InputStream in) throws IOException {
 		StringBuilder sb = new StringBuilder();
