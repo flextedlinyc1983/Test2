@@ -22,6 +22,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.rosuda.JRI.REXP;
 import org.rosuda.JRI.Rengine;
 import org.tensorflow.TensorFlow;
 
@@ -250,7 +251,7 @@ public class Test2 {
 //				
 //			}
 		
-		
+//			System.loadLibrary("jri");      
 			Rengine re=new Rengine (new String [] {"--vanilla"}, false, null);
 	        if (!re.waitForR())
 	        {
@@ -258,7 +259,13 @@ public class Test2 {
 	            return;
 	        }	       
 	        // 計算3*5並印出結果
-	        System.out.println (re.eval ("x<-3*5").asDouble ());	       
+//	        System.out.println (re.eval ("x<-3*5").asDouble ());	    
+	        REXP rexp = re.eval ("matrix(c(2:5), nrow = 2, ncol = 2)");
+	        int[] iArray = rexp.asIntArray();
+	        for (int i = 0; i < iArray.length; i++) {
+	        	System.out.println (iArray[i]);	
+			}
+	        
 	        // 結束
 	        re.end();
 	}
