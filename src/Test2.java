@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -24,6 +25,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.rosuda.JRI.REXP;
 import org.rosuda.JRI.Rengine;
+import org.springframework.core.io.ClassPathResource;
 import org.tensorflow.TensorFlow;
 
 import deepDriver.dl.aml.ann.ArtifactNeuroNetwork;
@@ -252,22 +254,51 @@ public class Test2 {
 //			}
 		
 //			System.loadLibrary("jri");      
-			Rengine re=new Rengine (new String [] {"--vanilla"}, false, null);
+//			Rengine re=new Rengine (new String [] {"--vanilla"}, false, null);
+//	        if (!re.waitForR())
+//	        {
+//	            System.out.println ("Cannot load R");
+//	            return;
+//	        }	       
+//	        // 計算3*5並印出結果
+////	        System.out.println (re.eval ("x<-3*5").asDouble ());	    
+//	        REXP rexp = re.eval ("matrix(c(2:5), nrow = 2, ncol = 2)");
+//	        int[] iArray = rexp.asIntArray();
+//	        for (int i = 0; i < iArray.length; i++) {
+//	        	System.out.println (iArray[i]);	
+//			}
+//	        
+//	        // 結束
+//	        re.end();
+		
+			helloRWorld();
+	}
+	
+	public static void helloRWorld() {
+			Rengine re = new Rengine (new String [] {"--vanilla"}, false, null);
 	        if (!re.waitForR())
 	        {
 	            System.out.println ("Cannot load R");
 	            return;
-	        }	       
-	        // 計算3*5並印出結果
-//	        System.out.println (re.eval ("x<-3*5").asDouble ());	    
-	        REXP rexp = re.eval ("matrix(c(2:5), nrow = 2, ncol = 2)");
-	        int[] iArray = rexp.asIntArray();
-	        for (int i = 0; i < iArray.length; i++) {
-	        	System.out.println (iArray[i]);	
-			}
-	        
-	        // 結束
-	        re.end();
+	        }	
+			ClassPathResource rScript = new ClassPathResource("test.R");
+			String str = "";
+//			try{
+//				 str = rScript.getFile().getAbsolutePath().toString();
+//				 Scanner scanner = new Scanner(rScript.getInputStream());
+//				 while (scanner.hasNext()) {
+//		            String tweet = scanner.nextLine();
+//		            broadcaster.onNext(tweet);
+//		            //simulateLatency();
+//				 }
+				re.eval("source('test.R')");
+
+		        REXP valueReturned = re.eval("testMain()");
+		       System.out.println(valueReturned.asString());
+//			}catch (IOException ex) {			
+//			}
+//			REXP rexp = re.eval(String.format("source('%s    )",str));
+//			System.out.println ( );
 	}
 	
 	
