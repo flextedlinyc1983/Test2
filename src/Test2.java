@@ -23,8 +23,16 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.python.core.PyException;
+import org.python.core.PyInteger;
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 import org.rosuda.JRI.REXP;
+//import org.rosuda.JRI.RList;
 import org.rosuda.JRI.Rengine;
+import org.rosuda.REngine.REXPGenericVector;
+import org.rosuda.REngine.REXPList;
+import org.rosuda.REngine.RList;
 import org.springframework.core.io.ClassPathResource;
 import org.tensorflow.TensorFlow;
 
@@ -35,7 +43,26 @@ public class Test2 {
 	
 	public final static int PORT = 13;
 	
-	public static void main(String[] args) {
+	
+	
+	public static void main(String[] args) throws PyException {
+		PythonInterpreter interp =new PythonInterpreter();
+        
+		interp.exec("import sys");
+        interp.exec("print sys");
+      
+        interp.set("a", new PyInteger(42));
+        interp.exec("print 'test='+str(a)");
+        interp.exec("x = 2+2");
+        PyObject x = interp.get("x");
+      
+        System.out.println("x: "+x);
+		
+		
+        System.out.println("Hello, brave new world");
+	}
+	
+//	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		Test2 t = new Test2();
 //		System.out.println("Test3");
@@ -271,8 +298,8 @@ public class Test2 {
 //	        // µ²§ô
 //	        re.end();
 		
-			helloRWorld();
-	}
+//			helloRWorld();
+//	}
 	
 	public static void helloRWorld() {
 			Rengine re = new Rengine (new String [] {"--vanilla"}, false, null);
@@ -293,8 +320,113 @@ public class Test2 {
 //				 }
 				re.eval("source('test.R')");
 
-		        REXP valueReturned = re.eval("testMain()");
-		       System.out.println(valueReturned.asString());
+//		        REXP valueReturned = re.eval("testMain()");
+				REXP rexp = re.eval("testMain()");	
+//				REXPList attrs = null;
+//				REXPGenericVector v = new REXPGenericVector(valueReturned);
+				
+//				RList r = new RList();
+//				r.add(new Double(1.0));
+//				REXPGenericVector v = new REXPGenericVector(r);
+				
+				int type = rexp.getType();
+			    RType result = null;
+			    switch (type) {
+			        case REXP.XT_STR:
+			            //If string return the r expression as string
+			            result = new RPrimitive(rexp.asString());
+			            break;
+			        case REXP.XT_INT:
+			            //if integer, return the rexp as integer
+			            result = new RPrimitive((Integer) rexp.asInt());
+			            break;
+			        case REXP.XT_ARRAY_INT:
+			            int[] array = rexp.asIntArray();
+			            Integer[] bigArray = new Integer[array.length];
+			            for (int i = 0; i < array.length; i++) {
+			                bigArray[i] = (Integer) array[i];
+			            }
+
+			            //Check if only one integer, return an integer.
+			            if (array.length == 1) {
+			                result = new RPrimitive((Integer) bigArray[0]);
+			            } else {
+			                result = new RPrimitiveArray(bigArray);
+			            }
+			            break;
+			        case REXP.XT_ARRAY_DOUBLE:
+			            //if double array, return the rexp as double array.
+			            double[] doublearray = rexp.asDoubleArray();
+			            Double[] bigdoublearray = new Double[doublearray.length];
+			            for (int i = 0; i < doublearray.length; i++) {
+			                bigdoublearray[i] = (Double) doublearray[i];
+			            }
+
+			            //Check if only one double, return a double.
+			            if (doublearray.length == 1) {
+			                result = new RPrimitive(bigdoublearray[0]);
+			            } else {
+			                result = new RPrimitiveArray(bigdoublearray);
+			            }
+			            break;
+			        case REXP.XT_BOOL:
+			            //if boolean, return rexp as boolean
+			            result = new RPrimitive(rexp.asBool().isTRUE());
+			            break;
+			        case REXP.XT_DOUBLE:
+			            //if double, return rexp as double
+			            //Get a double array
+			            //return only the first element.
+			            result = new RPrimitive((Double) ((double[]) rexp.asDoubleArray())[0]);
+			            break;
+			        case REXP.XT_NULL:
+			            //if null return null
+			            result = new RPrimitive();
+			            break;
+			        case REXP.XT_ARRAY_BOOL_INT:
+			            //if boolean array, get the rexp as integer array (full of 0 and 1)
+			            int[] integers = ((int[]) rexp.asIntArray());
+			            Boolean[] booleanArray = new Boolean[integers.length];
+			            //transform the 0 and 1 in true and false in a boolean array
+			            for (int i = 0; i < integers.length; i++) {
+			                if (integers[i] == 1) {
+			                    booleanArray[i] = Boolean.TRUE;
+			                } else {
+			                    booleanArray[i] = Boolean.FALSE;
+			                }
+			            }
+			            //check if there is only a boolean, return a boolean
+			            if (booleanArray.length == 1) {
+			                result = new RPrimitive(booleanArray[0]);
+			            } else {
+			                result = new RPrimitiveArray(booleanArray);
+			            }
+			            //return the boolean array
+			            break;
+			        case REXP.XT_ARRAY_STR:
+			            //if is a string array, return as a string array.
+			            result = new RPrimitiveArray(rexp.asStringArray());
+			            break;
+//			        case REXP.XT_VECTOR:
+//			            //dataframes, lists and vectors are recognized as vectors.
+//
+//			            //get REXP asList to successfully detect lists.
+//			            if (RHelpers.isDataframe(rexp)) {
+//			                convertDataFrame(rexp);
+//			            } else if (rexp.asList() != null) {
+//			                return convertList(rexp);
+//			            } else {
+//			                return convertVector(rexp.asVector());
+//			            }
+//			            break;
+			        default:
+			            //if don't know the type, throw an exception.
+//			            log.error("Unknown return type [" + type + "] " + "on : "
+//			                    + rexp.toString());
+			            break;
+			    }
+				System.out.println ("R");
+//		       System.out.println(valueReturned.asString());
 //			}catch (IOException ex) {			
 //			}
 //			REXP rexp = re.eval(String.format("source('%s    )",str));
